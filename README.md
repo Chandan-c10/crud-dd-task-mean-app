@@ -93,7 +93,9 @@ Screen shot
 
 <img width="1920" height="1200" alt="image" src="https://github.com/user-attachments/assets/0ddb46b1-0f4e-478f-8548-a5a55476199c" />
 
-<img width="1920" height="1200" alt="image" src="https://github.com/user-attachments/assets/953e5036-095b-43e9-b52c-3cedd9afa195" />
+<img width="1920" height="1200" alt="image" src="https://github.com/user-attachments/assets/920446b1-d88c-48fa-a0e0-1e715d9b4283" />
+<img width="1920" height="1200" alt="image" src="https://github.com/user-attachments/assets/a174f0a4-fe12-4392-9fe7-ebe16dd7d82f" />
+
 
 
 
