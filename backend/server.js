@@ -1,37 +1,38 @@
+// server.js
+
 const express = require("express");
-//const cors = require("cors");
+const cors = require("cors");
+const mongoose = require("mongoose");
 
 const app = express();
 
-// parse requests of content-type - application/json
-app.use(express.json());
+// Enable CORS
+app.use(cors());
 
-// parse requests of content-type - application/x-www-form-urlencoded
+// parse JSON body
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const db = require("./app/models");
-db.mongoose
-  .connect(db.url, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  })
-  .then(() => {
-    console.log("Connected to the database!");
-  })
-  .catch(err => {
-    console.log("Cannot connect to the database!", err);
-    process.exit();
+// MongoDB URI (Docker-friendly)
+const MONGO_URI = process.env.MONGO_URI || "mongodb://host.docker.internal:27017/testdb";
+
+// Connect to MongoDB (NO deprecated options)
+mongoose
+  .connect(MONGO_URI)
+  .then(() => console.log("Connected to the database!"))
+  .catch((err) => {
+    console.error("Cannot connect to the database!", err);
+    process.exit(1);
   });
 
-// simple route
+// test route
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to Test application." });
 });
 
+// routes (ensure file path is correct)
 require("./app/routes/turorial.routes")(app);
 
-// set port, listen for requests
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`);
-});
+// start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server is running on port ${PORT}.`));
