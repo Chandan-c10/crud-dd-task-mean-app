@@ -13,10 +13,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// MongoDB URI (Docker-friendly)
-const MONGO_URI = process.env.MONGO_URI || "mongodb://host.docker.internal:27017/testdb";
+// MongoDB URI for EC2
+const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/testdb";
 
-// Connect to MongoDB (NO deprecated options)
+// Connect to MongoDB
 mongoose
   .connect(MONGO_URI)
   .then(() => console.log("Connected to the database!"))
@@ -30,7 +30,7 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome to Test application." });
 });
 
-// routes (ensure file path is correct)
+// routes
 require("./app/routes/turorial.routes")(app);
 
 // start server
