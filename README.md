@@ -88,3 +88,12 @@ Full-stack MEAN CRUD application (Angular frontend + Node/Express backend + Mong
 
 ## License
 MIT
+
+Screen shot 
+
+<img width="1920" height="1200" alt="image" src="https://github.com/user-attachments/assets/0ddb46b1-0f4e-478f-8548-a5a55476199c" />
+
+<img width="1920" height="1200" alt="image" src="https://github.com/user-attachments/assets/953e5036-095b-43e9-b52c-3cedd9afa195" />
+
+
+
