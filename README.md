@@ -15,8 +15,10 @@ You can update the MongoDB credentials by modifying the `db.config.js` file loca
 Run `node server.js`
 
 docker run 
+'docker compose up --build -d'
 
-docker build -t mean-backend .
+
+'docker build -t mean-backend .'
 
 
 ### Angular Client
