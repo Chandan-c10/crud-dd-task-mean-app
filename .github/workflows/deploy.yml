@@ -1,0 +1,101 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build and Push Backend
+      uses: docker/build-push-action@v4
+      with:
+        context: ./backend
+        push: true
+        tags: ${{ secrets.DOCKER_USERNAME }}/mean-backend:latest
+
+    - name: Build and Push Frontend
+      uses: docker/build-push-action@v4
+      with:
+        context: ./frontend
+        push: true
+        tags: ${{ secrets.DOCKER_USERNAME }}/mean-frontend:latest
+
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST_IP }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          # Create app directory
+          mkdir -p mean-app
+          cd mean-app
+
+          # Stop current containers
+          docker-compose down || true
+
+          # Pull latest images
+          docker pull ${{ secrets.DOCKER_USERNAME }}/mean-backend:latest
+          docker pull ${{ secrets.DOCKER_USERNAME }}/mean-frontend:latest
+
+          # Re-create config files (simplest way for CI/CD)
+          echo "
+          version: '3.8'
+          services:
+            mongo:
+              image: mongo:latest
+              container_name: mean_mongo
+              volumes:
+                - mongo_data:/data/db
+            backend:
+              image: ${{ secrets.DOCKER_USERNAME }}/mean-backend:latest
+              container_name: mean_backend
+              ports:
+                - '3000:3000'
+              environment:
+                - MONGO_URI=mongodb://mean_mongo:27017/meanDB
+              depends_on:
+                - mongo
+            frontend:
+              image: ${{ secrets.DOCKER_USERNAME }}/mean-frontend:latest
+              container_name: mean_frontend
+            nginx:
+              image: nginx:alpine
+              container_name: mean_proxy
+              ports:
+                - '80:80'
+              volumes:
+                - ./nginx.conf:/etc/nginx/conf.d/default.conf
+              depends_on:
+                - frontend
+                - backend
+          volumes:
+            mongo_data:
+          " > docker-compose.yml
+
+          echo "
+          server {
+              listen 80;
+              location /api {
+                  proxy_pass http://backend:3000;
+              }
+              location / {
+                  proxy_pass http://frontend:80;
+              }
+          }
+          " > nginx.conf
+
+          # Start everything
+          docker-compose up -d
