@@ -1,59 +1,29 @@
-# docker-compose.yml
 version: "3.8"
 
 services:
   mongo:
     image: mongo:6.0
-    restart: always
-    environment:
-      MONGO_INITDB_DATABASE: todo_db
+    container_name: crud-dd-task-mean-ap_mongo
+    ports:
+      - "27017:27017"
     volumes:
-      - mongo-data:/data/db
-    networks:
-      - appnet
+      - mongo_data:/data/db
 
   backend:
-    build:
-      context: .
-      dockerfile: docker/backend.Dockerfile
-    image: deeganth/crud-dd-backend:latest
-    restart: always
-    environment:
-      - MONGO_URL=mongodb://mongo:27017/todo_db
-      - PORT=8080
+    build: ./backend
+    container_name: crud-dd-task-mean-ap_backend
+    ports:
+      - "8081:8081"
     depends_on:
       - mongo
-    networks:
-      - appnet
-    expose:
-      - "8080"
 
   frontend:
-    build:
-      context: .
-      dockerfile: docker/frontend.Dockerfile
-    image: deeganth/crud-dd-frontend:latest
-    restart: always
-    networks:
-      - appnet
-    expose:
-      - "80"
-
-  proxy:
-    image: nginx:alpine
-    volumes:
-      - ./docker/nginx-proxy.conf:/etc/nginx/nginx.conf:ro
+    build: ./frontend
+    container_name: crud-dd-task-mean-ap_frontend
     ports:
       - "80:80"
     depends_on:
-      - frontend
       - backend
-    networks:
-      - appnet
 
 volumes:
-  mongo-data:
-
-networks:
-  appnet:
-    driver: bridge
+  mongo_data:
